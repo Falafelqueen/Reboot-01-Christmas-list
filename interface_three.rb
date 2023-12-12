@@ -4,15 +4,18 @@ puts "Welcome to the christmas list"
 # gift is a hash now -> {name: "bike", bought: true}
 
 gift_list = []
-# gift_list = [{name: "bike", bought: false}, {name: "puppy", bought: true}]
-# gift_list is array of hashes
-filepath = 'save.csv'
+
+
 
 # Load from the CSV into an array
+# We do this outside of the loop, right after the program starts
+# We fill out gift_list array with the items that were saved in the excel sheet (CSV)
+filepath = 'save.csv'
 CSV.foreach(filepath, col_sep: ',', quote_char: '"', headers: :first_row) do |row|
   gift_list << { name: row["name"], bought: row["bought"] }
 end
 
+# This is a method that we defined to refactor our code
 def display_list(list)
   list.each_with_index do |gift, index|
     status = gift[:bought] ? "[X]" : "[ ]"
@@ -31,13 +34,13 @@ while answer != "quit"
       # 1 - [X] - gift 1
       # 2 - [ ] - some new bike
       # 3 - [X] - puppy
-      if gift_list.empty?
-        puts "The list is empty now. Add some items"
-      else
-        display_list(gift_list)
-      end
+    if gift_list.empty?
+      puts "The list is empty now. Add some items"
+    else
+      display_list(gift_list)
+    end
 
-      # gift_list.empty? ? (puts "The list is empty now. Add some items") : display_list(gift_list)
+    # gift_list.empty? ? (puts "The list is empty now. Add some items") : display_list(gift_list)
   when "add"
     puts "What would you like to add"
     gift = gets.chomp.capitalize
@@ -65,7 +68,10 @@ while answer != "quit"
     gift_index = gets.chomp.to_i - 1
     gift_list.delete_at(gift_index)
   when "quit"
-    # save everything they have in their gift list into our CSV
+    # Before exiting the program we want to save everything the user had added into their list to the database (csv)
+    # We can do it either here or outside of the loop  (at the end of the file)
+    # We open the CSV with .open and write into it
+    # We iterate over our gift list array and just write it line by line into the CSV
     CSV.open(filepath, 'wb', col_sep: ',', force_quotes: true, quote_char: '"') do |csv|
       csv << ["name", "bought"]
       gift_list.each do |gift|
